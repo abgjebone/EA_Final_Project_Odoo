@@ -6,3 +6,9 @@ access_hotel_dailycharges,hotel.dailycharges,model_hotel_dailycharges,base.group
 access_hotel_rooms,hotel.rooms,model_hotel_rooms,base.group_user,1,1,1,1
 access_hotel_guests,hotel.guests,model_hotel_guests,base.group_user,1,1,1,1
 access_hotel_guestregistration,hotel.guestregistration,model_hotel_guestregistration,base.group_user,1,1,1,1
+access_hotel_roombill,hotel.roombill,model_hotel_roombill,base.group_user,1,1,1,1
+access_hotel_roombillrecord_new,hotel.roombillrecord_new,model_hotel_roombillrecord_new,base.group_user,1,1,1,1
+access_hotel_documents,hotel.documents,model_hotel_documents,base.group_user,1,1,1,1
+access_hotel_transaction_dashboard,hotel.transaction.dashboard,model_hotel_transaction_dashboard,base.group_user,1,1,1,1
+access_hotel_transaction_report,hotel.transaction_report,model_hotel_transaction_report,base.group_user,1,0,0,0
+access_email_guestbill_wizard,hotel.email.guestbill.wizard,model_hotel_email_guestbill_wizard,base.group_user,1,1,1,1

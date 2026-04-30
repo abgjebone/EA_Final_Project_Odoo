@@ -10,6 +10,19 @@
     sequence="10"/>
 
   <menuitem 
+    name="Hotel Reports" 
+    id="menu_hotel_reports" 
+    parent="menu_hotel_root"
+    sequence="15"/>
+
+  <menuitem 
+    name="Transaction Dashboard" 
+    id="menu_hotel_transaction_dashboard"
+    parent="menu_hotel_reports"
+    action="action_open_hotel_dashboard"
+    sequence="10"/>
+
+  <menuitem 
     name="Master Lists" 
     id="menu_hotel_masterlists" 
     parent="menu_hotel_root"

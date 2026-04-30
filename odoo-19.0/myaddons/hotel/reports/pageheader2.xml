@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <template id="report_pageheader2">
+            <t t-set="company" t-value="o.company_id or env.user.company_id"/>
+            <div class="header">
+                 <div class="mypageheader">
+                    <!-- LEFT: Logo -->
+                    <div class="mypageheader-left">
+                        <img t-att-src="'/web/image/res.company/%s/logo' % company.id"
+                            class="mylogo"/>
+                    </div>
+
+                    <!-- CENTER: Report Title + Company Info -->
+                    <div class="mypageheader-center">
+                        <h2 class="myreport-title" t-out="reporttitle"></h2>
+                        <h3 class="myreport-company" t-out="company.name"></h3>
+                        <p class="myreport-address" t-out="company.street"></p>
+                        <p class="myreport-phone" t-out="'Phone No: ' + company.phone + ' Email: ' + company.email"/>
+                    </div>
+
+                    <!-- RIGHT: Page Number -->
+                    <div class="mypageheader-right">
+                        <p class="mypageindicator">Page <span class="page"/> / <span class="topage"/></p>
+                    </div>
+                </div>
+
+                <div class="mypageheader" style="margin-top: 10px;">
+                
+                    <div class="row" style="display: flex; align-items: center; width: 100%;">
+                        <div t-if="o.datefrom_fmt" style="flex: 0 0 25%; max-width: 25%;">
+                            <strong class="mylbl-10">Date From:</strong>
+                            <span class="mylbl-12" t-out="datefrom"/>
+                        </div>
+                        <div t-if="o.dateto_fmt" style="flex: 0 0 25%; max-width: 25%;">
+                            <strong class="mylbl-10">Date To:</strong>
+                            <span class="mylbl-12" t-out="dateto"/>
+                        </div>
+                        
+                    </div>
+                </div>
+
+                <t t-out="0"/>
+           
+            </div>
+
+        </template>
+    </data>
+</odoo>        

@@ -1,0 +1,148 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+
+        <template id="report_guestbill2">
+            <t t-call="web.html_container">
+                <t t-call="web.basic_layout">
+
+                    <t t-foreach="docs" t-as="o">
+                    <t t-set="reporttitle" t-value="'Guest Bill'"/>
+ 
+                    <t t-call="hotel.report_pageheader"/>                        
+
+                        <t t-set="grunning_balance" t-value="0.0"/>   
+
+                        <t t-foreach="o.get_roombill_pages(65)" t-as="page_lines">
+                            <div class="page">
+
+                               <t t-call="hotel.bill_header"/>    
+                               
+                                <table class="table table-borderless mymp0-0" style="width:100%; table-layout: fixed; border-collapse: collapse;">
+                                    
+                                    <thead class="mydblline">
+                                        <tr>
+                                            <th class="text-center mymp0-0 mytbw-40 mylbl-10"> <strong>LN#</strong></th>
+                                            <th class="text-start mymp0-0 mytbw-90 mylbl-10"> <strong>Date</strong></th>
+                                            <th class="text-start mymp0-0 mytbw-40 mylbl-10"> <strong>Doc</strong></th>
+                                            <th class="text-center mymp0-0 mytbw-60 mylbl-10 mymr-5"><strong>No.</strong></th>
+                                            <th class="text-start mymp0-0 mytbw-150 mylbl-10"><strong>Account Title</strong></th>
+                                            <th class="text-start mymp0-0 mytbw-150 mylbl-10"><strong>Details</strong></th>
+                                            <th class="text-center mymp0-0 mytbw-125 mylbl-10"><strong>Amount</strong></th>
+                                            <th class="text-start mymp0-0 mytbw-40 mylbl-10"><strong>Status</strong></th>
+                                            <th class="text-end mymp0-0 mytbw-75 mylbl-10"><strong>Debit</strong></th>
+                                            <th class="text-end mymp0-0 mytbw-75 mylbl-10"><strong>Credit</strong></th>
+                                            <th class="text-end mymp0-0 mytbw-75 mylbl-10"><strong>Balance</strong></th>
+                                        </tr>
+                                    </thead>
+                                    
+
+                                    <tbody>
+                                        <t t-set="ptotal_debit" t-value="0"/>
+                                        <t t-set="ptotal_credit" t-value="0"/>
+                                        <t t-set="ptotal_balance" t-value="0"/> 
+
+                                        <t t-foreach="page_lines" t-as="line">
+
+                                            <t t-set="ptotal_debit" t-value="ptotal_debit + line.debitamt"/>
+                                            <t t-set="ptotal_credit" t-value="ptotal_credit + line.creditamt"/>
+                                            <t t-set="ptotal_balance" t-value="ptotal_balance + line.diffamt"/>
+                                            <t t-set="grunning_balance" t-value="grunning_balance + line.diffamt"/>
+
+
+                                            <tr style="height:15px !important;">
+                                                <td class="text-center mymp0-0 mytbw-40 mylbl-10"><span t-field="line.line_no"/></td>
+                                                <td class="text-start mymp0-0 mytbw-90 mylbl-10"><span t-field="line.dateapplied_fmt"/></td>
+                                                <td class="text-start mymp0-0 mytbw-40 mylbl-10"><span t-field="line.document_id"/></td>
+                                                <td class="text-center mymp0-0 mytbw-60 mylbl-10 mymr-5"><span t-field="line.documentno"/></td>
+                                                <td class="text-start mymp0-0 mytbw-150 mylbl-10"><span t-field="line.charge_id"/></td>
+                                                <td class="text-start mymp0-0 mytbw-150 mylbl-10"><span t-field="line.details"/></td>
+                                                <td class="text-center mymp0-0 mytbw-125 mylbl-10"><span t-field="line.amountapplied"/></td>
+                                                <td class="text-start mymp0-0 mytbw-40 mylbl-10"><span t-field="line.state"/></td>
+                                                <td class="text-end mymp0-0 mytbw-75 mylbl-10"><span t-field="line.debitamt"/></td>
+                                                <td class="text-end mymp0-0 mytbw-75 mylbl-10"><span t-field="line.creditamt"/></td>
+                                                <td class="text-end mymp0-0 mytbw-75 mylbl-10"><span t-field="line.diffamt_fmt"/></td>
+                                            </tr>
+
+                                        </t>
+
+                                    </tbody>
+                                </table>    
+
+                                <!-- Repeating Page Footer -->
+                                <table  class="table table-borderless mymp0-0" style="width:100%; table-layout: fixed; border-collapse: collapse;">
+                                    
+                                    <thead class="mydblline">
+                                        <tr>
+                                            <th class="text-center mymp0-0 mytbw-40 mylbl-10"></th>
+                                            <th class="text-start mymp0-0 mytbw-90 mylbl-10"></th>
+                                            <th class="text-start mymp0-0 mytbw-40 mylbl-10"></th>
+                                            <th class="text-center mymp0-0 mytbw-60 mylbl-10 mymr-5"></th>
+                                            <th class="text-start mymp0-0 mytbw-150 mylbl-10"></th> 
+                                            <th class="text-start mymp0-0 mytbw-150 mylbl-10"><strong>Page Total:</strong></th>
+                                            <th class="text-center mymp0-0 mytbw-125 mylbl-10"></th> 
+                                            <th class="text-start mymp0-0 mytbw-40 mylbl-10"></th>
+                                            <th class="text-end mymp0-0 mytbw-75 mylbl-10"><strong><t t-out="'{:,.2f}'.format(ptotal_debit)"/></strong></th>
+                                            <th class="text-end mymp0-0 mytbw-75 mylbl-10"><strong><t t-out="'{:,.2f}'.format(ptotal_credit)"/></strong></th>
+                                            <th class="text-end mymp0-0 mytbw-75 mylbl-10"><strong>
+                                                <t t-if="ptotal_balance &lt; 0">
+                                                    (<t t-out="'{:,.2f}'.format(abs(ptotal_balance))"/>)
+                                                </t>
+                                                <t t-else="">
+                                                    <t t-out="'{:,.2f}'.format(ptotal_balance)"/>
+                                                </t>
+                                            </strong></th>
+                                        </tr>    
+                                        <tr>
+                                            <th class="text-center mymp0-0 mytbw-40 mylbl-10"></th>
+                                            <th class="text-start mymp0-0 mytbw-90 mylbl-10"></th>
+                                            <th class="text-start mymp0-0 mytbw-40 mylbl-10"></th>
+                                            <th class="text-center mymp0-0 mytbw-60 mylbl-10 mymr-5"></th>
+                                            <th class="text-start mymp0-0 mytbw-150 mylbl-10"></th> 
+                                            <th class="text-start mymp0-0 mytbw-150 mylbl-10"><strong>Forwarded Balance:</strong></th>
+                                            <th class="text-center mymp0-0 mytbw-125 mylbl-10"></th> 
+                                            <th class="text-start mymp0-0 mytbw-49 mylbl-10"></th>
+                                            <th class="text-end mymp0-0 mytbw-75 mylbl-10"></th>
+                                            <th class="text-end mymp0-0 mytbw-75 mylbl-10"></th>
+                                            <th class="text-end mymp0-0 mytbw-75 mylbl-10"><strong>
+                                                <t t-if="grunning_balance &lt; 0">
+                                                    (<t t-out="'{:,.2f}'.format(abs(grunning_balance))"/>)
+                                                </t>
+                                                <t t-else="">
+                                                    <t t-out="'{:,.2f}'.format(grunning_balance)"/>
+                                                </t>
+                                            </strong></th>
+                                        </tr>    
+                                    </thead>
+                                </table>
+
+                                <t t-if="not page_lines_last">
+                                    <p style="page-break-after: always;"/>
+                                </t>
+                            </div>
+
+
+                        </t>
+                    </t>
+                </t>
+            </t>
+        </template> 
+                
+
+
+
+
+
+        <record id="action_report_bill2" model="ir.actions.report">
+            <field name="name">Guest Bill</field>
+            <field name="model">hotel.guestregistration</field>
+            <field name="report_type">qweb-pdf</field>
+            <field name="report_name">hotel.report_guestbill2</field>
+            <field name="report_file">hotel.report_guestbill2</field>
+            <field name="print_report_name">'GRC%06d' % object.grc_id</field>
+            <field name="binding_model_id" ref="model_hotel_guestregistration"/>
+            <field name="binding_type">report</field>
+            <field name="paperformat_id" ref="hotel.mypaperformat_a4_portrait"/>
+        </record>
+    </data>
+</odoo>

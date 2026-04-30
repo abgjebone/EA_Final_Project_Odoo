@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
 <!-- Top menu item -->
-  <menuitem name="Hotel System" id="menu_hotel_root" />
+  <menuitem name="Hotel System" id="menu_hotel_root" web_icon="hotel,static/description/icon.png"/>
   <!-- menu categories -->
   <menuitem 
     name="Guest Registrations" 
@@ -9,6 +9,12 @@
     parent="menu_hotel_root"
     sequence="10"/>
 
+  <menuitem 
+    name="Hotel Reports" 
+    id="menu_hotel_reports" 
+    parent="menu_hotel_root"
+    sequence="15"/>
+    
   <menuitem 
     name="Master Lists" 
     id="menu_hotel_masterlists" 

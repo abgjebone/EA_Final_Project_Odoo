@@ -6,7 +6,17 @@
         <field name="name">hotel.guestregistration.list</field>
         <field name="model">hotel.guestregistration</field>
         <field name="arch" type="xml">
+
             <list string="Guest Registrations">
+                <header>
+                    <button name="action_refresh_guest_list" 
+                    string="Refresh" 
+                    type="object" 
+                    icon="fa-refresh" 
+                    class="btn-primary"
+                    display="always"/>
+                </header>
+
                 <field name="grc_id_display"/> 
                 <field name="create_date_ampm"/>
                 <field name="room_id"/>
@@ -60,6 +70,16 @@
                         invisible="state != 'DRAFT' and state!= 'RESERVED'"
                         icon="fa-times"
                         class="oe_highlight oe_right"/>  
+
+                    <button name="action_check_availability" 
+                        string="Check Availability" 
+                        type="object" 
+                        invisible="state != 'DRAFT' and state!= 'RESERVED'"
+                        icon="fa-calendar-check-o"
+                        class="oe_highlight oe_right"/>
+
+                
+               
                 </header>
                 <sheet>
                     <group col="3">
@@ -100,6 +120,78 @@
                         </group>
                     </group>
 
+                 <notebook>
+                        <page string="Guest Bill">
+                            <div class="d-flex justify-content-between align-items-center gap-2 mb-2">
+                                <button name="%(action_roombillrecord_new_wizard)d" 
+                                    string="New Room Transaction" 
+                                    type="action" 
+                                    icon="fa-plus" 
+                                    class="btn-primary"
+                                    invisible="state != 'CHECKEDIN'"
+                                    context="{'default_guestregistration_id': id}"/>
+                                
+                                <div class="d-flex gap-2">
+                                    <button name="%(action_report_bill)d" 
+                                        string="Print Bill" 
+                                        type="action" 
+                                        icon="fa-print" 
+                                        class="oe_highlight"
+                                        invisible="state != 'CHECKEDIN'"/>
+
+                                    <button name="%(action_report_bill2)d" 
+                                        string="Print Bill (Multi-page)" 
+                                        type="action" 
+                                        icon="fa-print" 
+                                        class="oe_highlight"
+                                        invisible="state != 'CHECKEDIN'"/>
+                                    
+                                    <button name="%(hotel.action_hotel_email_guestbill_wizard)d" 
+                                        string="Email Bill" 
+                                        type="action" 
+                                        icon="fa-envelope" 
+                                        class="oe_highlight"
+                                        invisible="state != 'CHECKEDIN'"
+                                        context="{'default_res_id': id, 'active_id': id, 'active_model': 'hotel.guestregistration', 'default_email_to': guest_id.email, 'default_subject': 'Your Hotel Bill'}"/>
+                                </div>
+                            </div>
+
+                            <field name="roombill_ids">
+                                <list create="false" edit="false" delete="false" readonly="1">
+                                    <header>
+                                        <button name="action_finalize" 
+                                            string="Finalize" 
+                                            type="object" 
+                                            invisible="state != 'DRAFT'"
+                                            confirm="Tag Bill Record as FINAL?"
+                                            class="oe_highlight"/>
+                                    </header>
+
+                                    <field name="dateapplied_fmt" string="Date"/>
+
+                                    <field name="document_id" string="Document"/>
+                                    <field name="documentno" string="No."/>
+                                    <field name="charge_id" string="Account Title"/>
+                                    <field name="details" string="Details"/>
+                                    <field name="amountapplied"/>
+
+                                    <field name="state"
+                                        decoration-muted="state == 'CANCELLED'"
+                                        decoration-info="state == 'FINAL'"
+                                        decoration-bf="state == 'FINAL'" 
+                                        decoration-warning="state == 'DRAFT'"/>
+                                    
+                                    <field name="debitamt" sum="Total Debit" class="o_list_number"/>
+                                    <field name="creditamt" sum="Total Credit" class="o_list_number"/>
+                                    
+                                    <!-- Formatted Balance -->
+                                    <field name="diffamt" sum="Total Balance"  class="o_list_number"/>
+
+                                </list>
+                            </field>
+                        </page>
+                    </notebook>
+
                 </sheet>
 
             </form>
@@ -110,9 +202,22 @@
 
     <!-- action opening views on models -->
       <record model="ir.actions.act_window" id="action_hotel_active_guestregistration">
-      <field name="name">Hotel Guest Registration</field>
+      <field name="name">Active Hotel Guest Registration</field>
       <field name="res_model">hotel.guestregistration</field>
       <field name="view_mode">list,form</field>
+        <field name="views" eval="[(ref('view_hotel_guestregistration_list'), 'list'), (ref('view_hotel_guestregistration_form'), 'form')]"/>
+      <field name="domain">[('state','in',['DRAFT','RESERVED', 'CHECKEDIN'])]</field>
+      <field name="context">{'create': True}</field>
+      </record>
+
+    <!-- action opening views on models -->
+      <record model="ir.actions.act_window" id="action_hotel_inactive_guestregistration">
+      <field name="name">Inactive Guest Registrations</field>
+      <field name="res_model">hotel.guestregistration</field>
+      <field name="view_mode">list,form</field>
+        <field name="views" eval="[(ref('view_hotel_guestregistration_list'), 'list'), (ref('view_hotel_guestregistration_form'), 'form')]"/>
+      <field name="domain">[('state','in',['DRAFT','CHECKEDINOUT', 'CANCELLED'])]</field>
+      <field name="context">{'create': False}</field>
       </record>
 
     <!-- menu item for charges cruds -->
@@ -121,6 +226,13 @@
         id="menu_hotel_active_guestregistration"
         parent="menu_hotel_guestregistration_list"
         action="action_hotel_active_guestregistration" 
-        sequence="4"/>
+        sequence="20"/>
+
+    <menuitem 
+        name="Inactive Guest Registrations" 
+        id="menu_hotel_inactive_guestregistration"
+        parent="menu_hotel_guestregistration_list"
+        action="action_hotel_inactive_guestregistration" 
+        sequence="30"/>
 
 </odoo>

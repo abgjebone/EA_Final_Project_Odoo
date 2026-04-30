@@ -4,7 +4,7 @@
 import pytz
 from datetime import datetime
 
-from odoo import models, fields, api
+from odoo import _, models, fields, api
 from odoo.exceptions import ValidationError
 
 
@@ -25,7 +25,13 @@ class guestregistration(models.Model):
     
     #guestname <- related field found as a computed field called name in 
     # the model hotel.guests
-    guestname=fields.Char("Guest Name",related='guest_id.name')
+    guestname=fields.Char(string="Created by",
+        related='create_uid.login',
+        store=False,
+        readonly=True    
+    )
+
+    creator_login = fields.Char("Created By", compute="_compute_creator_login")
 
     datecreated_fmt = fields.Char("Date Created", compute="_compute_datecreated_fmt")
 
@@ -39,7 +45,13 @@ class guestregistration(models.Model):
 
 
     #uncomment later for guest billing 
-    #roombill_ids=fields.One2many('hotel.roombill','guestregistration_id', string='Room Charges')
+    roombill_ids=fields.One2many('hotel.roombill','guestregistration_id', string='Room Charges')
+    total_amount_applied = fields.Float(
+        string='Total Balance',
+        compute='_compute_total_amount_applied',
+        store=False,
+        digits=(12, 2),
+    )
 
     state = fields.Selection([
         ('DRAFT', 'Draft'),
@@ -59,6 +71,8 @@ class guestregistration(models.Model):
         index=True,
         default=lambda self: self.env.company,
     )
+
+
 
     name= fields.Char("Guest Registration",compute='_compute_name',store=False)  
     @api.depends('room_id', 'guest_id')
@@ -135,11 +149,16 @@ class guestregistration(models.Model):
     def _compute_grc_id_display(self):
         for rec in self:
             rec.grc_id_display = str(rec.grc_id)
+
+    @api.depends('roombill_ids.diffamt')
+    def _compute_total_amount_applied(self):
+        for rec in self:
+            rec.total_amount_applied = sum(rec.roombill_ids.mapped('diffamt')) if rec.roombill_ids else 0.0
                 
  
     @api.model
     def create(self, vals_list):
-    # vals_list can be a list of dicts
+        # vals_list can be a list of dicts
         for vals in vals_list:
             if not vals.get('grc_id'):
                 doctype = 'GRC'
@@ -157,37 +176,51 @@ class guestregistration(models.Model):
         records = super().create(vals_list)
         return records
    
-    def action_reserve(self):
-        for rec in self:
-            if not (rec.guest_id):
-                raise ValidationError('Please supply a valid Guest Name.')
+    # Helper validations and DB call wrappers to avoid repetition
+    def _validate_basic(self):
+        self.ensure_one()
+        if not self.guest_id:
+            raise ValidationError(_('Please supply a valid guest.'))
+        if not self.room_id:
+            raise ValidationError(_('Please supply a valid Room Number.'))
+        if not self.datefromsched:
+            raise ValidationError(_('Please supply a valid Date From Schedule.'))
+        if not self.datetosched:
+            raise ValidationError(_('Please supply a valid Date To Schedule.'))
+        if self.datetosched <= self.datefromsched:
+            raise ValidationError(_('Invalid Date Range: Check-out must be after Check-in.'))
 
-            elif not(rec.roomname):
-                raise ValidationError('Please supply a valid Room Number.')
-            elif not(rec.datefromsched):
-                raise ValidationError('Please supply a valid Date from Schedule.')
-            elif not(rec.datetosched):
-                raise ValidationError('Please supply a valid Date to Schedule.')
-            elif (rec.datetosched<=rec.datefromsched):
-                raise ValidationError('Invalid Date Range.')
-            else:
-                rec.state = "RESERVED"
-    
-    def action_checkin(self):
-        for rec in self:
-            if not (rec.guest_id):
-                raise ValidationError('Please supply a valid Guest Name.')
+    def _validate_reserve(self):
+        self._validate_basic()
+        now = fields.Datetime.now()
+        if now > self.datefromsched:
+            raise ValidationError(_('Cannot reserve past the scheduled check-in date.'))
+        if now >= self.datetosched:
+            raise ValidationError(_('Cannot reserve past the scheduled check-out date.'))
 
-            elif not(rec.roomname):
-                raise ValidationError('Please supply a valid Room Number.')
-            elif not(rec.datefromsched):
-                raise ValidationError('Please supply a valid Date from Schedule.')
-            elif not(rec.datetosched):
-                raise ValidationError('Please supply a valid Date to Schedule.')
-            elif (rec.datetosched<=rec.datefromsched):
-                raise ValidationError('Invalid Date Range.')
-            else:
-                rec.state = "CHECKEDIN"
+    def _validate_checkin(self):
+        self._validate_basic()
+        # Compare dates in user's timezone and allow check-in on the scheduled day.
+        user_tz = self.env.user.tz or 'UTC'
+        now_dt = fields.Datetime.context_timestamp(self, fields.Datetime.now())
+        for rec in self:
+            # convert scheduled datetimes to user tz
+            scheduled_from = fields.Datetime.context_timestamp(rec, rec.datefromsched) if rec.datefromsched else None
+            scheduled_to = fields.Datetime.context_timestamp(rec, rec.datetosched) if rec.datetosched else None
+            # compare only dates: allow check-in on the same calendar day
+            if scheduled_from and now_dt.date() < scheduled_from.date():
+                raise ValidationError(_('Cannot check in before the scheduled check-in date.'))
+            if scheduled_to and now_dt.date() >= scheduled_to.date():
+                raise ValidationError(_('Cannot check in past the scheduled check-out date.'))
+
+    def _check_registration_conflict(self):
+        pkid = self.id
+        cmp_id = self.env.company.id
+        
+        
+        self.env.cr.execute("SELECT rid, rmessage FROM public.hotel_fncheck_registrationconflict(%s,%s)", (pkid, cmp_id)
+        )
+        return self.env.cr.fetchone()
 
     def action_checkout(self):
         for rec in self:
@@ -205,5 +238,111 @@ class guestregistration(models.Model):
             
     def action_mark_draft(self):
         for rec in self:
-            rec.state = "DRAFT"       
-                    
+            rec.state = "DRAFT"
+
+    def action_refresh_guest_list(self):
+        return {
+            'type': 'ir.actions.client',
+            'tag': 'reload',
+        }
+
+    def action_check_availability(self):
+        self.ensure_one()
+        # Basic validation
+        self._validate_basic()
+
+        # DB conflict check
+        result = self._check_registration_conflict()
+        if result:
+            if result[0] == 0:
+                return {
+                    'type': 'ir.actions.client',
+                    'tag': 'display_notification',
+                    'params': {
+                        'title': ("Availability Check"),
+                        'message': ("The room schedule is available for the selected dates."),
+                        'type': 'success',
+                        'sticky': False,
+                    }
+                }
+            else:
+                raise ValidationError(result[1])
+        return True
+
+    def action_reserve(self):
+        self.ensure_one()
+        # validation including reservation-specific time checks
+        self._validate_reserve()
+
+        result = self._check_registration_conflict()
+        if result and result[0] == 0:
+            self.state = "RESERVED"
+            return {
+                'type': 'ir.actions.client',
+                'tag': 'display_notification',
+                'params': {
+                    'title': 'Availability Check',
+                    'message': 'The room is RESERVED for the selected dates.',
+                    'type': 'success',
+                    'sticky': False,
+                    'next': {'type': 'ir.actions.client', 'tag': 'reload'},
+                }
+            }
+        else:
+            raise ValidationError(result[1] if result else "Schedule Conflict. Please check room availability for the selected dates.")
+
+    def action_checkin(self):
+        for rec in self:
+            rec._validate_checkin()
+            result = rec._check_registration_conflict()
+            if result and result[0] == 0:
+                now = fields.Datetime.now()
+                if rec.datefromsched != now:
+                    rec.datefromsched = now
+
+                self.env.cr.execute("SELECT * FROM public.hotel_fnCheckin(%s,%s)", (rec.id, self.env.company.id))
+                rec.state = "CHECKEDIN"
+                # consume any DB output
+                self.env.cr.fetchall()
+
+                return {
+                    'type': 'ir.actions.client',
+                    'tag': 'display_notification',
+                    'params': {
+                        'title': 'Check In',
+                        'message': 'Guest has been CHECKED IN successfully.',
+                        'type': 'success',
+                        'sticky': False,
+                        'next': {'type': 'ir.actions.client', 'tag': 'reload'},
+                    }
+                }
+            else:
+                raise ValidationError(result[1] if result else "Schedule Conflict. Please check room availability for the selected dates.")
+
+    def get_roombill_pages(self, lines_per_page=65):
+        """Return the room bill lines split into pages of at most `lines_per_page`.
+
+        The report `guestbill2.xml` calls `o.get_roombill_pages(65)` and expects
+        a sequence of page-sized lists/recordsets so QWeb can iterate and render
+        each page. This helper keeps the logic in Python and avoids template-side
+        slicing or errors when there are many bill lines.
+        """
+        self.ensure_one()
+        # Order bills in a deterministic way (by id). Use recordset slicing which
+        # QWeb can iterate over.
+        lines = self.roombill_ids.sorted('id') if self.roombill_ids else self.env['hotel.roombill']
+        pages = []
+        total = len(lines)
+        if total == 0:
+            return pages
+        for i in range(0, total, int(lines_per_page)):
+            pages.append(lines[i:i + int(lines_per_page)])
+        return pages
+
+    def action_print_bill(self):
+        self.ensure_one()
+        return self.env.ref('hotel.action_report_bill').report_action(self)
+
+    def action_print_bill_multipage(self):
+        self.ensure_one()
+        return self.env.ref('hotel.action_report_bill2').report_action(self)

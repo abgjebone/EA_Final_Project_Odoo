@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <template id="bill_header">
+            <div style="margin-top: 32px;">
+                <div class="row" style="display: flex; align-items: center; width: 100%;">
+                    <div t-if="o.grc_id" style="flex: 0 0 10%; max-width: 10%;">
+                        <strong class="mylbl-10">GRC #</strong>
+                        <span class="mylbl-12" t-field="o.grc_id"/>
+                    </div>
+                    <div t-if="o.guest_id" style="flex: 0 0 40%; max-width: 40%;">
+                        <strong class="mylbl-10">Guest Name</strong>
+                        <span class="mylbl-12" t-field="o.guest_id"/>
+                    </div>
+                    <div t-if="o.room_id" style="flex: 0 0 15%; max-width: 15%;">
+                        <strong class="mylbl-10">Room No.</strong>
+                        <span class="mylbl-12" t-field="o.room_id"/>
+                    </div>
+                    <div t-if="o.roomtname" style="flex: 0 0 15%; max-width: 15%;">
+                        <strong class="mylbl-10">Room Type</strong>
+                        <span class="mylbl-12" t-field="o.roomtname"/>
+                    </div>
+                    <div t-if="o.create_date_ampm" style="flex: 0 0 20%; max-width: 20%;">
+                        <strong class="mylbl-10">Date</strong>
+                        <span class="mylbl-12" t-field="o.create_date_ampm"/>
+                    </div>
+                </div>
+                <div class="row" style="display: flex; align-items: center; width: 100%;">
+                    <div t-if="o.datefromsched_ampm" style="flex: 0 0 25%; max-width: 25%;">
+                        <strong class="mylbl-10">Check In:</strong>
+                        <span class="mylbl-12" t-field="o.datefromsched_ampm"/>
+                    </div>
+                    <div t-if="o.datetosched_ampm" style="flex: 0 0 25%; max-width: 25%;">
+                        <strong class="mylbl-10">Check Out:</strong>
+                        <span class="mylbl-12" t-field="o.datetosched_ampm"/>
+                    </div>
+                    <div t-if="o.state" style="flex: 0 0 20%; max-width: 20%;">
+                        <strong class="mylbl-10">Status:</strong>
+                        <span class="mylbl-12" t-field="o.state"/>
+                    </div>
+                    <div t-if="o.total_amount_applied" style="flex: 0 0 30%; max-width: 30%;">
+                        <strong class="mylbl-10">Total Balance:</strong>
+                        <span class="mylbl-12" t-field="o.total_amount_applied"/>
+                    </div>
+                </div>
+            </div>
+
+                
+
+        </template>
+    </data>
+</odoo>        

@@ -1,0 +1,162 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+
+        <template id="report_guestbill">
+            <t t-call="web.html_container">
+                <t t-call="web.basic_layout">
+
+                    <t t-foreach="docs" t-as="o">
+                    <t t-set="reporttitle" t-value="'Guest Bill'"/>
+
+                    <t t-set="company" t-value="o.company_id or env.user.company_id"/>
+                    <div class="header">
+                         <div class="mypageheader" style="display:flex; align-items:center; gap:12px;">
+                            <div class="mypageheader-left" style="flex:0 0 80px;">
+                                <img t-att-src="'/hotel/static/description/Hotel%20Logo.png'"
+                                    class="mylogo" style="max-width:80px; max-height:80px; display:block;"/>
+                            </div>
+                            <div class="mypageheader-center" style="flex:1;">
+                                <h2 class="myreport-title" t-out="reporttitle" style="margin:0 0 4px 0;"></h2>
+                                <h3 class="myreport-company" t-out="company.name" style="margin:0 0 2px 0;"></h3>
+                                <p class="myreport-address" t-out="company.street" style="margin:0;"></p>
+                                <p class="myreport-phone" t-out="'Phone No: ' + (company.phone or '') + ' Email: ' + (company.email or '')" style="margin:0;"></p>
+                            </div>
+                            <div class="mypageheader-right" style="flex:0 0 120px; text-align:right;">
+                                <p class="mypageindicator" style="margin:0;">Page <span class="page"/> / <span class="topage"/></p>
+                            </div>
+                        </div>
+                        <t t-out="0"/>
+                   
+                    </div>
+
+                        <div style="margin-top: 32px;">
+                            <div class="row" style="display: flex; align-items: center; width: 100%;">
+                                <div t-if="o.grc_id" style="flex: 0 0 10%; max-width: 10%;">
+                                    <strong class="mylbl-10">GRC #</strong>
+                                    <span class="mylbl-12" t-field="o.grc_id"/>
+                                </div>
+                                <div t-if="o.guest_id" style="flex: 0 0 40%; max-width: 40%;">
+                                    <strong class="mylbl-10">Guest Name</strong>
+                                    <span class="mylbl-12" t-field="o.guest_id"/>
+                                </div>
+                                <div t-if="o.room_id" style="flex: 0 0 15%; max-width: 15%;">
+                                    <strong class="mylbl-10">Room No.</strong>
+                                    <span class="mylbl-12" t-field="o.room_id"/>
+                                </div>
+                                <div t-if="o.roomtname" style="flex: 0 0 15%; max-width: 15%;">
+                                    <strong class="mylbl-10">Room Type</strong>
+                                    <span class="mylbl-12" t-field="o.roomtname"/>
+                                </div>
+                                <div t-if="o.create_date_ampm" style="flex: 0 0 20%; max-width: 20%;">
+                                    <strong class="mylbl-10">Date</strong>
+                                    <span class="mylbl-12" t-field="o.create_date_ampm"/>
+                                </div>
+                            </div>
+                            <div class="row" style="display: flex; align-items: center; width: 100%;">
+                                <div t-if="o.datefromsched_ampm" style="flex: 0 0 25%; max-width: 25%;">
+                                    <strong class="mylbl-10">Check In:</strong>
+                                    <span class="mylbl-12" t-field="o.datefromsched_ampm"/>
+                                </div>
+                                <div t-if="o.datetosched_ampm" style="flex: 0 0 25%; max-width: 25%;">
+                                    <strong class="mylbl-10">Check Out:</strong>
+                                    <span class="mylbl-12" t-field="o.datetosched_ampm"/>
+                                </div>
+                                <div t-if="o.state" style="flex: 0 0 20%; max-width: 20%;">
+                                    <strong class="mylbl-10">Status:</strong>
+                                    <span class="mylbl-12" t-field="o.state"/>
+                                </div>
+                                <t t-set="total_amount_applied" t-value="sum(o.roombill_ids.mapped('diffamt'))"/>
+                                <div t-if="total_amount_applied" style="flex: 0 0 30%; max-width: 30%;">
+                                    <strong class="mylbl-10">Total Balance:</strong>
+                                    <span class="mylbl-12"><t t-esc="'{:,.2f}'.format(total_amount_applied)"/></span>
+                                </div>
+                            </div>
+                        </div>
+
+                
+
+                        <div class="page mypage">   
+                            <table class="table table-borderless mymp0-0" style="width:100%; table-layout: fixed; border-collapse: collapse;">
+                                <thead class="mydblline">
+                                    <tr class="mytr">
+                                        <th class="text-center mymp0-0 mytbw-40 mylbl-10"> <strong>LN#</strong></th>
+                                        <th class="text-start mymp0-0 mytbw-90 mylbl-10"> <strong>Date</strong></th>
+                                        <th class="text-start mymp0-0 mytbw-40 mylbl-10"> <strong>Doc</strong></th>
+                                        <th class="text-center mymp0-0 mytbw-60 mylbl-10 mymr-5"><strong>No.</strong></th>
+                                        <th class="text-start mymp0-0 mytbw-150 mylbl-10"><strong>Account Title</strong></th>
+                                        <th class="text-start mymp0-0 mytbw-150 mylbl-10"><strong>Details</strong></th>
+                                        <th class="text-center mymp0-0 mytbw-125 mylbl-10"><strong>Amount</strong></th>
+                                        <th class="text-start mymp0-0 mytbw-40 mylbl-10"><strong>Status</strong></th>
+                                        <th class="text-end mymp0-0 mytbw-75 mylbl-10"><strong>Debit</strong></th>
+                                        <th class="text-end mymp0-0 mytbw-75 mylbl-10"><strong>Credit</strong></th>
+                                        <th class="text-end mymp0-0 mytbw-75 mylbl-10"><strong>Balance</strong></th>
+                                    </tr>    
+                                </thead>
+                                <tbody>   
+                                    <t t-set="ptotal_debit" t-value="0"/>
+                                    <t t-set="ptotal_credit" t-value="0"/>
+                                    <t t-set="ptotal_balance" t-value="0"/> 
+                                    <t t-set="grunning_balance" t-value="0"/>
+
+                                    <t t-foreach="o.roombill_ids" t-as="line">
+
+
+                                        <t t-set="ptotal_debit" t-value="ptotal_debit + line.debitamt"/>
+                                        <t t-set="ptotal_credit" t-value="ptotal_credit + line.creditamt"/>
+                                        <t t-set="ptotal_balance" t-value="ptotal_balance + line.diffamt"/>
+                                        <t t-set="grunning_balance" t-value="grunning_balance + line.diffamt"/>
+
+                                        <tr class="mytr" style="height:15px !important;">
+                                            <td class="text-center mymp0-0 mytbw-40 mylbl-10"><t t-out="line_index + 1"/></td>
+                                            <td class="text-start mymp0-0 mytbw-90 mylbl-10"><span t-field="line.dateapplied_fmt"/></td>
+                                            <td class="text-start mymp0-0 mytbw-40 mylbl-10"><span t-field="line.document_id"/></td>
+                                            <td class="text-center mymp0-0 mytbw-60 mylbl-10 mymr-5"><span t-field="line.documentno"/></td>
+                                            <td class="text-start mymp0-0 mytbw-150 mylbl-10"><span t-field="line.charge_id"/></td>
+                                            <td class="text-start mymp0-0 mytbw-150 mylbl-10"><span t-field="line.details"/></td>
+                                            <td class="text-center mymp0-0 mytbw-125 mylbl-10"><span t-field="line.amountapplied"/></td>
+                                            <td class="text-start mymp0-0 mytbw-40 mylbl-10"><span t-field="line.state"/></td>
+                                            <td class="text-end mymp0-0 mytbw-75 mylbl-10"><span t-field="line.debitamt"/></td>
+                                            <td class="text-end mymp0-0 mytbw-75 mylbl-10"><span t-field="line.creditamt"/></td>
+                                            <td class="text-end mymp0-0 mytbw-75 mylbl-10"><span t-field="line.diffamt_fmt"/></td>
+                                        </tr>
+                                    </t>
+                                </tbody>
+                                <tfoot>
+                                    <tr class="mydblline mytr">
+                                        <td colspan="8" class="text-end mymp0-0 mylbl-10"><strong>Page Total</strong></td>
+                                        <td class="text-end mymp0-0 mytbw-75 mylbl-10"><strong><t t-esc="'{:,.2f}'.format(ptotal_debit)"/></strong></td>
+                                        <td class="text-end mymp0-0 mytbw-75 mylbl-10"><strong><t t-esc="'{:,.2f}'.format(ptotal_credit)"/></strong></td>
+                                        <td class="text-end mymp0-0 mytbw-75 mylbl-10"><strong><t t-esc="'({:,.2f})'.format(abs(ptotal_balance)) if ptotal_balance &lt; 0 else '{:,.2f}'.format(ptotal_balance)"/></strong></td>
+                                    </tr>
+                                    <tr class="mytr">
+                                        <td colspan="10" class="text-end mymp0-0 mylbl-10"><strong>Running Balance</strong></td>
+                                        <td class="text-end mymp0-0 mytbw-75 mylbl-10"><strong><t t-esc="'({:,.2f})'.format(abs(grunning_balance)) if grunning_balance &lt; 0 else '{:,.2f}'.format(grunning_balance)"/></strong></td>
+                                    </tr>
+
+
+                                    <t t-set="ptotal_debit" t-value="0"/>
+                                    <t t-set="ptotal_credit" t-value="0"/>
+                                    <t t-set="ptotal_balance" t-value="0"/>
+                                </tfoot>    
+                            </table>
+                        </div>
+
+                    </t>
+                </t>
+            </t>
+        </template>
+
+        <record id="action_report_bill" model="ir.actions.report">
+            <field name="name">Guest Bill</field>
+            <field name="model">hotel.guestregistration</field>
+            <field name="report_type">qweb-pdf</field>
+            <field name="report_name">hotel.report_guestbill</field>
+            <field name="report_file">hotel.report_guestbill</field>
+            <field name="print_report_name">'GRC%06d' % object.grc_id</field>
+            <field name="binding_model_id" ref="model_hotel_guestregistration"/>
+            <field name="binding_type">report</field>
+            <field name="paperformat_id" ref="hotel.mypaperformat_a4_portrait"/>
+        </record>
+    </data>
+</odoo>

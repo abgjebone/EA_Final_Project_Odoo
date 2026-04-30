@@ -14,14 +14,25 @@
     'license': 'LGPL-3',
 
     # Always loaded data
-    'data': [
-            'views/mainmenu.xml',
-            'models/views/guests.xml',
-            'models/views/guestregistration.xml',
-            'models/views/charges.xml',
-            'models/views/rooms.xml',
-            'models/views/roomtypes.xml',
-            'security/ir.model.access.csv',
+    'data': [      
+        'reports/paperformats.xml',     
+        'reports/pageheader.xml',
+        'reports/billheader.xml',
+        'reports/guestbill.xml',
+        'reports/guestbill2.xml',
+        'reports/hoteltransaction.xml',
+        'reports/hoteltransaction3.xml',
+        'reports/hoteltransactiondashboard.xml',
+        'wizards/roombillrecord_edit.xml',        
+        'wizards/roombillrecord_new.xml',
+        'wizards/emailguestbill.xml',
+        'security/ir.model.access.csv',
+        'models/views/mainmenu.xml',
+        'models/views/guestregistration.xml',
+        'models/views/guests.xml',        
+        'models/views/rooms.xml',        
+        'models/views/roomtypes.xml',   
+        'models/views/charges.xml', 
     ],
 
     'installable': True,

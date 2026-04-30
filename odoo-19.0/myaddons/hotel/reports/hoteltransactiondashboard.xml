@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_hotel_transaction_dashboard_form" model="ir.ui.view">
+        <field name="name">hotel.transaction.dashboard.form</field>
+        <field name="model">hotel.transaction.dashboard</field>
+        <field name="arch" type="xml">
+            <form string="Hotel Transaction Analysis" create="0" delete="0" options="{'no_open': True}">
+                <header>
+                        <button name="action_refresh_results" 
+                            string="Refresh Data" 
+                            type="object" 
+                            class="btn-primary" 
+                            icon="fa-refresh"/>
+
+                        <button name="%(action_hotel_transactions_report)d"
+                            string="Print Transaction Report"
+                            type="action"
+                            class="btn-primary float-end"
+                            confirm="Print Transaction Report?"
+                            icon="fa-print"/>
+
+                        <button name="%(action_hotel_transactions_report3)d"
+                            string="Print Transaction Report"
+                            type="action"
+                            class="btn-primary float-end"
+                            confirm="Print Transaction Report?"
+                            icon="fa-print"/>
+
+                        <button name="action_export_excel" 
+                            string="Export to Excel" 
+                            type="object" 
+                            class="btn-secondary float-end" 
+                            confirm="Export transaction data to Excel?"
+                            icon="fa-file-excel-o"/>
+                </header>
+
+                <sheet>
+                 
+                  
+                   <group>
+                        <field name="date_from" string="Date Start"/>
+                        <field name="date_to" string="Date End"/>
+                        <newline/> 
+                    </group>
+                                        <!-- <separator string="Report Results"/> -->
+                    
+                    <field name="report_line_ids" readonly="1">
+                        <list create="0" delete="0" decoration-success="state == 'FINAL'" decoration-muted="state != 'FINAL'" limit="65">
+                            <field name="line_no"/>
+                            <field name="dateapplied_ampm"/>
+                            <field name="accounttitle"/>
+                            <field name="roomname"/>
+                            <field name="roomtypename"/>
+                            <field name="doc"/>
+                            <field name="documentno"/>                            
+                            <field name="accounttitle"/>
+                            <field name="debit_amt" sum="Total Debit"/>
+                            <field name="credit_amt" sum="Total Credit"/>
+                            <field name="state" widget="badge"/>
+                        </list>
+                    </field>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_open_hotel_dashboard" model="ir.actions.act_window">
+        <field name="name">Transaction Dashboard</field>
+        <field name="res_model">hotel.transaction.dashboard</field>
+        <field name="view_mode">form</field>
+        <field name="target">current</field>
+        <field name="view_id" ref="view_hotel_transaction_dashboard_form"/>
+        <field name="context">{'default_user_id': uid, 'default_company_id': env.company.id}</field>
+    </record>
+
+</odoo>

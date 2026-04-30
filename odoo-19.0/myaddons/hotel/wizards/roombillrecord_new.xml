@@ -1,0 +1,67 @@
+<!-- myaddons/hotel/wizards/hotel_roombillrecord_new_wizard_view.xml -->
+<odoo>
+    <record id="view_hotel_roombillrecord_new_form" model="ir.ui.view">
+        <field name="name">hotel.roombillrecord_new.form</field>
+        <field name="model">hotel.roombillrecord_new</field>
+        <field name="arch" type="xml">
+            <form string="New Bill Record">
+                 <header>
+                      <field name="state" widget="statusbar" nolabel="1" readonly="1"/>
+                 </header>
+                
+                <group class="o_row">
+                    <field name="document_id" />
+                    <field name="documentdescription" readonly="1"/>
+                    <field name="documentno" readonly="1"/>                    
+                </group>
+                <group >
+                    <field name="dateapplied" string="Date"/>
+                </group>
+                <group class="o_row">
+                    <field name="charge_id"/>
+                    <field name="amountapplied"/>
+                </group>
+                <group class="o_row">
+                    <field name="details"/>
+                </group>
+     
+                <footer>
+                    <button name="action_draft_bill" 
+                        string="Draft" 
+                        type="object" 
+                        icon="fa-file-text-o"
+                        class="oe_highlight oe_left"/>
+
+                    <button name="action_final_bill" 
+                        string="Finalize" 
+                        type="object" 
+                        icon="fa-check-circle"                
+                        class="oe_highlight oe_left"/>
+
+                    <span class="me-5"/> <span class="me-5"/> <span class="me-5"/> 
+                    <span class="me-5"/> <span class="me-5"/> <span class="me-5"/> 
+                    <span class="me-5"/> <span class="me-5"/> <span class="me-5"/>                     
+                    <span class="me-5"/> <span class="me-5"/> <span class="me-5"/>    
+
+                    <button name="action_confirm" 
+                        string="Save" 
+                        type="object"
+                        class="btn-primary oe_right" 
+                        confirm="Add a new bill record?"/>
+
+                    <button string="Cancel" 
+                        special="cancel" 
+                        class="btn-secondary oe_right"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <!-- Wizard action -->
+    <record id="action_roombillrecord_new_wizard" model="ir.actions.act_window">
+        <field name="name">New Room Bill Record</field>
+        <field name="res_model">hotel.roombillrecord_new</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field> <!-- 👈 makes it a modal -->
+    </record>
+</odoo>

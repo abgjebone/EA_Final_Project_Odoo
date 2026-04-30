@@ -1,0 +1,154 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+
+        <template id="report_hoteltransactions">
+            <t t-call="web.html_container">
+                <t t-call="web.basic_layout">
+
+                    <t t-foreach="docs" t-as="o">
+
+                        <!-- Insert Standard Page Header Here -->
+                        <t t-set="reporttitle" t-value="'Hotel Transaction Summary'" />
+
+                    <t t-call="hotel.report_pageheader"/>   
+                        <!-- Initialize Grand Totals here -->
+
+                        <t t-set="gtotal_debit" t-value="0.0" />
+                        <t t-set="gtotal_credit" t-value="0.0" />
+
+                    <t t-foreach="o.hotel_transaction_report_pages(65)" t-as="page_lines">
+
+                        <!-- Main Content -->
+
+                        <div class="page mypage">
+
+                            <!-- Insert Report Specific Page Header here -->
+                                <div style="margin-top: 32px;">
+                                </div>
+                                <div class="row" style="display: flex; align-items: center; width: 100%;">
+                                    <div t-if="o.datefrom_fmt" style="flex: 0 0 25%; max-width: 25%;">
+                                        <strong class="mylbl-10">Date From:</strong>
+                                        <span class="mylbl-12" t-field="o.datefrom_fmt"/>
+                                    </div>
+                                    <div t-if="o.dateto_fmt" style="flex: 0 0 25%; max-width: 25%;">
+                                        <strong class="mylbl-10">Check Out:</strong>
+                                        <span class="mylbl-12" t-field="o.dateto_fmt"/>
+                                    </div>
+                                
+                                </div>
+                            <table class="table table-borderless mymp0-0"
+                                style="width:100%; table-layout: fixed; border-collapse: collapse;">
+                                <thead class="mydblline">
+                                    <tr class="mytr">
+                                        <!---  Insert Column Headers Here  -->
+                                        <th class="text-center mymp0-0 mytbw-40 mylbl-10"> <strong>LN#</strong></th>
+                                        <th class="text-start mymp0-0 mytbw-90 mylbl-10"> <strong>Date</strong></th>
+                                        <th class="text-start mymp0-0 mytbw-150 mylbl-10"><strong>Account Title</strong>
+                                        </th>
+                                        <th class="text-start mymp0-0 mytbw-40 mylbl-10"><strong>Room</strong></th>
+                                        <th class="text-start mymp0-0 mytbw-40 mylbl-10"> <strong>Room Type</strong>
+                                        </th>
+                                        <th class="text-center mymp0-0 mytbw-40 mylbl-10"> <strong>Doc</strong></th>
+                                        <th class="text-end mymp0-0 mytbw-60 mylbl-10 mymr-5"><strong>No.</strong></th>
+                                        <th class="text-end mymp0-0 mytbw-75 mylbl-10"><strong>Debit</strong></th>
+                                        <th class="text-end mymp0-0 mytbw-75 mylbl-10"><strong>Credit</strong></th>
+                                        <th class="text-center mymp0-0 mytbw-40 mylbl-10"><strong>Status</strong></th>
+
+
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <!-- Initialize your Page Totals here -->
+                                    <t t-set="ptotal_debit" t-value="0" />
+                                    <t t-set="ptotal_credit" t-value="0" />
+
+                                    <t t-foreach="page_lines" t-as="line">
+
+                                        <!-- Increment Page and	Grand Totals Here -->
+                                        <t t-set="ptotal_debit" t-value="ptotal_debit + line.debit_amt" />
+                                        <t t-set="ptotal_credit" t-value="ptotal_credit + line.credit_amt" />
+                                        <t t-set="gtotal_debit" t-value="gtotal_debit + line.debit_amt" />
+                                        <t t-set="gtotal_credit" t-value="gtotal_credit + line.credit_amt" />
+
+
+                                        <tr class="mytr" style="height:15px !important;">
+                                            <!-- Insert your Rows here -->
+                                            <td class="text-center mymp0-0 mytbw-40 mylbl-10"><span
+                                                    t-field="line.line_no" /></td>
+                                            <td class="text-start mymp0-0 mytbw-90 mylbl-10"><span
+                                                    t-field="line.dateapplied_ampm" /></td>
+                                            <td class="text-start mymp0-0 mytbw-150 mylbl-10"><span
+                                                    t-field="line.accounttitle" /></td>
+                                            <td class="text-start mymp0-0 mytbw-40 mylbl-10"><span
+                                                    t-field="line.roomname" /></td>
+                                            <td class="text-start mymp0-0 mytbw-40 mylbl-10"><span
+                                                    t-field="line.roomtypename" /></td>
+                                            <td class="text-center mymp0-0 mytbw-40 mylbl-10"><span
+                                                    t-field="line.doc" /></td>
+                                            <td class="text-end mymp0-0 mytbw-60 mylbl-10"><span
+                                                    t-field="line.documentno" /></td>
+                                            <td class="text-end mymp0-0 mytbw-75 mylbl-10 mymr-5"><span
+                                                    t-field="line.debit_amt" /></td>
+                                            <td class="text-end mymp0-0 mytbw-75 mylbl-10"><span
+                                                    t-field="line.credit_amt" /></td>
+                                            <td class="text-end mymp0-0 mytbw-40 mylbl-10"><span t-field="line.state" />
+                                            </td>
+
+                                        </tr>
+                                    </t>
+                                </tbody>
+
+                                <!-- Put the page repeating footer here -->
+
+                                <tfoot>
+                                    <tr class="mydblline mytr">
+                                        <!-- Insert your Page Total Footer here -->
+                                        <td colspan="7" class="text-end mymp0-0 mylbl-10"><strong>Page
+                                                Total</strong></td>
+                                        <td class="text-end mymp0-0 mytbw-75 mylbl-10"><strong>
+                                                <t t-out="'{:,.2f}'.format(ptotal_debit)" />
+                                            </strong></td>
+                                        <td class="text-end mymp0-0 mytbw-75 mylbl-10"><strong>
+                                                <t t-out="'{:,.2f}'.format(ptotal_credit)" />
+                                            </strong></td>
+                                        <td class="text-end mymp0-0 mytbw-40 mylbl-10"></td>
+
+                                    </tr>
+                                    <tr class="mytr">
+                                        <!-- Insert your Grand Total Footer here -->
+
+                                        <td colspan="7" class="text-end mymp0-0 mylbl-10"><strong>Grand
+                                                Total</strong></td>
+                                        <td class="text-end mymp0-0 mytbw-75 mylbl-10"><strong>
+                                                <t t-out="'{:,.2f}'.format(gtotal_debit)" />
+                                            </strong></td>
+                                        <td class="text-end mymp0-0 mytbw-75 mylbl-10"><strong>
+                                                <t t-out="'{:,.2f}'.format(gtotal_credit)" />
+                                            </strong></td>
+                                        <td class="text-end mymp0-0 mytbw-40 mylbl-10"></td>
+                                    </tr>
+
+
+                                </tfoot>
+                            </table>
+                        </div>
+                    </t>
+                </t>
+            </t>
+            </t>
+        </template>
+
+        <record id="action_hotel_transactions_report" model="ir.actions.report">
+            <field name="name">Hotel Transactions</field>
+            <field name="model">hotel.transaction.dashboard</field>
+            <field name="report_type">qweb-pdf</field>
+            <field name="report_name">hotel.report_hoteltransactions</field>
+            <field name="report_file">hotel.report_hoteltransactions</field>
+            <field name="print_report_name">'Hotel Transactions'</field>
+            <field name="binding_model_id" ref="model_hotel_transaction_dashboard" />
+            <field name="binding_type">report</field>
+            <field name="paperformat_id" ref="hotel.mypaperformat_a4_portrait" />
+        </record>
+    </data>
+</odoo>

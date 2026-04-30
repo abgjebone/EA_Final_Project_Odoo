@@ -1,0 +1,34 @@
+<!-- myaddons/hotel/wizards/emailguestbill.xml -->
+<odoo>
+    <record id="view_email_guestbill_wizard_form" model="ir.ui.view">
+        <field name="name">hotel.email.guestbill.wizard.form</field>
+        <field name="model">hotel.email.guestbill.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Send Email">
+                <group>
+                    <field name="email_to"/>
+                    <field name="subject"/>
+                </group>
+                <field name="body" placeholder="Write your message here..."/>
+                <footer>
+                    <button name="action_send_email" string="Send" 
+                       type="object" 
+                       class="btn-primary" 
+                       icon="fa-envelope"/>
+
+                    <button string="Cancel" class="btn-secondary" special="cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <!-- Wizard action -->
+    <record id="action_hotel_email_guestbill_wizard" model="ir.actions.act_window">
+        <field name="name">Send Guest Bill via Email</field>
+        <field name="res_model">hotel.email.guestbill.wizard</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field> 
+        <field name="view_id" ref="view_email_guestbill_wizard_form"/>
+    </record>
+
+</odoo>

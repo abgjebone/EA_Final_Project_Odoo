@@ -1,0 +1,70 @@
+<!-- myaddons/hotel/wizards/hotel_roombillrecord_edit_wizard_view.xml -->
+<odoo>
+    <record id="view_hotel_roombillrecord_edit_form" model="ir.ui.view">
+        <field name="name">hotel.roombillrecord_edit.form</field>
+        <field name="model">hotel.roombill</field>
+        <field name="arch" type="xml">
+            <form string="Edit Bill Record">
+                <header>
+                    <field name="state" widget="statusbar" readonly="1"/>
+
+                </header>
+                <group class="o_row">
+                    <field name="document_id" readonly="1"/>
+                    <field name="documentdescription" readonly="1"/>
+                    <field name="documentno" readonly="1"/>                    
+                </group>
+                <group >
+                    <field name="dateapplied" string="Date" readonly="state in ['FINAL','CANCELLED']"/>
+                </group>
+                <group class="o_row">
+                    <field name="charge_id" readonly="state in ['FINAL','CANCELLED']"/>
+                    <field name="amountapplied" readonly="state in ['FINAL','CANCELLED']"/>
+                </group>
+                <group class="o_row">
+                    <field name="details" readonly="state in ['FINAL','CANCELLED']"/>
+                </group>
+                <footer>
+
+                    <button name="action_finalize" 
+                        string="Finalize" 
+                        type="object" 
+                        invisible="state != 'DRAFT'"
+                        confirm="Tag bill record as FINAL?"
+                        icon="fa-check"
+                        class="oe_highlight"/>
+
+                    <button name="action_cancel" 
+                        string="Cancel"
+                        type="object" 
+                        invisible="state != 'DRAFT'"
+                        confirm="CANCEL bill record?"
+                        icon="fa-times"
+                        class="oe_highlight"/>
+
+
+                    <span class="me-5"/> <span class="me-5"/> <span class="me-5"/> 
+                    <span class="me-5"/> <span class="me-5"/> <span class="me-5"/> 
+                    <span class="me-5"/> <span class="me-5"/> <span class="me-5"/>                     
+                    <span class="me-5"/> <span class="me-5"/> <span class="me-5"/>    
+
+
+                    <button name="action_save" 
+                        string="Save" 
+                        type="object" 
+                        class="btn-primary"
+                        invisible="state in ['FINAL','CANCELLED']"
+                        />
+                    <button string="Close" special="cancel" class="btn-secondary"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_roombillrecord_edit_wizard" model="ir.actions.act_window">
+        <field name="name">Edit Room Bill Record</field>
+        <field name="res_model">hotel.roombill</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field> <!-- modal -->
+    </record>
+</odoo>

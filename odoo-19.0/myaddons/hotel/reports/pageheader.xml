@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <template id="report_pageheader">
+            <t t-set="company" t-value="o.company_id or env.user.company_id"/>
+            <div class="header">
+                <div class="mypageheader" style="display:flex; align-items:center; gap:12px;">
+                    <!-- LEFT: Logo -->
+                    <div class="mypageheader-left" style="flex:0 0 80px;">
+                        <img t-att-src="'/web/image/res.company/%s/logo' % company.id"
+                            class="mylogo" style="max-width:80px; max-height:80px; display:block;"/>
+                    </div>
+
+                    <!-- CENTER: Report Title + Company Info -->
+                    <div class="mypageheader-center" style="flex:1;">
+                        <h2 class="myreport-title" t-out="reporttitle" style="margin:0 0 4px 0;"></h2>
+                        <h3 class="myreport-company" t-out="company.name" style="margin:0 0 2px 0;"></h3>
+                        <p class="myreport-address" t-out="company.street" style="margin:0;"></p>
+                        <p class="myreport-phone" t-out="'Phone No: ' + (company.phone or '') + ' Email: ' + (company.email or '')" style="margin:0;"/>
+                    </div>
+
+                    <!-- RIGHT: Page Number -->
+                    <div class="mypageheader-right" style="flex:0 0 120px; text-align:right;">
+                        <p class="mypageindicator" style="margin:0;">Page <span class="page"/> / <span class="topage"/></p>
+                    </div>
+                </div>
+                <t t-out="0"/>
+           
+            </div>
+
+        </template>
+    </data>
+</odoo>        
